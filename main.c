@@ -23,7 +23,7 @@ int main(void) {
 
 		manually_place_ships_on_board(boards);
 	}
-	else randomly_place_ships_on_board();
+	else randomly_place_ships_on_board(boards);
 
 
 

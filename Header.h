@@ -14,6 +14,7 @@
 #define size_for_submarine 12
 #define size_for_destroyer 8
 
+
 typedef enum dir
 {
 	HORIZ, VERT
@@ -41,17 +42,19 @@ typedef struct stats {
 //void gen_start_pt(Dir direction, int ship_length, int* start_row_ptr,
 //	int* start_col_ptr);
 
-
+static int size_array[5] = { size_for_carriers, size_for_battleship, size_for_cruiser, size_for_submarine, size_for_destroyer };
+static char strings[][12] = { "Carrier", "Battleship","Cruiser","Submarine","Destroyer" };
+static char character[5] = { 'c','b','r','s','d' };
 
 int welcome_screen();
 Game print_game_board();
 int select_who_starts_first();
 int manually_place_ships_on_board(Game boards);
-int randomly_place_ships_on_board();
+int randomly_place_ships_on_board(Game boards);
 int check_shot();
 int is_winner();
 void update_board();
-void display_board(Board player_board);
+void display_board(Board player_board, Board player_board2);
 void output_current_move();
 void check_if_sunk_ship();
 void output_stats();

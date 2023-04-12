@@ -108,90 +108,232 @@ int select_who_starts_first(void) {
 
 
 }
-int compare_input_board(char input[],Board player1_board,int comparer) {
-	int row, column;
+int compare_input_board(char input[], Board player1_board, int comparer) {
+	int row, column, row_storage[100], column_storage[100];
 	int space;
-	int status=0;
-	
-	for (int i = 0; i < comparer; i += 4) {
+	int status = 0;
+	int i = 0, balance = 0;
+	printf("Another debug:%d\n", comparer);
+	for (; i < comparer; i += 4) {
+
 		row = input[i] - '0';
 		space = input[i + 1];
 		column = input[i + 2] - '0';
 		/*printf("Value of space:%d and is '-':%c\n", space, player1_board.board_array[row][column]);
 		printf("Row: %d,Col: %d\n", row, column);
 		printf("WTF:%d\n", i);*/
-		if (player1_board.board_array[row][column] != '-'||space!=32)status = 1;
+		if (player1_board.board_array[row][column] != '-' || space != 32)status = 1;
+		//sorting algorithm for a simple array
+		row_storage[balance] = row;
+		column_storage[balance] = column;
+		balance++;
+
+
+
 
 
 
 
 	}
+	printf("Maybe this shit aint working afterall, i: %d\n", balance);
+	row_storage[balance] = 10;
+	//indicator
+	column_storage[balance] = 10;
+	int temp;
+	//sorting algorithm
+	for (int j = 0; row_storage[j] != 10; j++) {
+		for (int x = j; row_storage[x] != 10; x++) {
+			/*printf("Ultimate debug:row_storage[j]:%d\nrow_storage[x]:%d\nj:%d & x:%d\n", row_storage[j], row_storage[x], j, x);*/
+			if (row_storage[x] < row_storage[j]) {
+				temp = row_storage[x];
+				row_storage[x] = row_storage[j];
+				row_storage[j] = temp;
+
+			}
+			if (column_storage[x] < column_storage[j]) {
+				temp = column_storage[x];
+				column_storage[x] = column_storage[j];
+				column_storage[j] = temp;
+			}
+		}
+	}
+
+	for (int counter = 0; row_storage[counter + 1] != 10; counter++) {
+		if ((row_storage[counter + 1] - row_storage[counter]) > 1 || column_storage[counter + 1] - column_storage[counter] > 1) {
+			status = 1;
+			break;
+		}
+
+		else if ((row_storage[counter + 1] - row_storage[counter]) == 1 && column_storage[counter + 1] != column_storage[counter]) {
+			printf("1) Redo since there might be a diagonal involved or values that are entered are not horizontal or vertical.\n");
+			status = 1;
+			break;
+		}
+		else if ((row_storage[counter + 1] == row_storage[counter]) && (column_storage[counter + 1] - column_storage[counter]) != 1) {
+
+			printf("2) Redo since there might be a diagonal involved or values that are entered are not horizontal or vertical.\n");
+			printf("First:%d & Second:%d__________Truth:%d\n", row_storage[counter + 1], row_storage[counter], row_storage[counter + 1] == row_storage[counter]);
+			printf("First:%d & Second:%d__________Truth:%d\n", column_storage[counter + 1], column_storage[counter], (column_storage[counter + 1] - column_storage[counter]) != 1);
+			status = 1;
+			break;
+		}
+
+	}
+
+
+	for (int counter = 0; row_storage[counter + 1] != 10; counter++)printf("row;counter:%d,counter+1:%d,difference:%d\n", row_storage[counter], row_storage[counter + 1], row_storage[counter + 1] - row_storage[counter]);
+	for (int counter = 0; row_storage[counter + 1] != 10; counter++)printf("column;counter:%d,counter+1:%d,difference:%d\n", column_storage[counter], column_storage[counter + 1], column_storage[counter + 1] - column_storage[counter]);
 	return status;
 }
 int manually_place_ships_on_board(Game boards) {
-	printf("Please enter the five cells (row then column, each cell, separated by spaces in one line) to place the Carrier across:\n");
-	
+
 	char input1[MAX];
-	
+
+	Board player1_board = boards.one;
+
 	int row, column;
 	getchar();
-	gets(input1);	
-	printf("size: %d\n", size_for_carriers);
-	for (int i = 0; i <size_for_carriers; i++)printf("%c", input1[i]);
-	putchar('\n');
-	
-	Board player1_board=boards.one;
-	for (int i = 0; i < size_for_carriers; i += 4) {
-		row = input1[i] - '0';
-		column = input1[i + 2] - '0';
-		printf("%d%d\n", row, column);
-		player1_board.board_array[row][column] = 'c';
+	for (int iter = 0; iter < sizeof(size_array) / 4; iter++) {
+		printf("Please enter the  %d cells (row then column, each cell, separated by spaces in one line) to place the %s across:\n", size_array[iter] / 4, strings[iter]);
+		gets(input1);
+		while (compare_input_board(input1, player1_board, size_array[iter])) {
+			printf("\nOne of the cells you have entered is already occupied or is out of the boundary of the battleship board, please try inputting a different combination of row and column again(only numbers from 0 to 9). Or, you haven't entered spaces correctly!\nOr you have not entered a sequential contiguous cell in order.\nPlease enter the %d cells (row then column, each cell, separated by spaces in one line) to place the %s across:\n", size_array[iter] / 4, strings[iter]);
+
+			gets(input1);
+		}
+		printf("size: %d\n", size_array[iter]);
+		for (int i = 0; i < size_array[i]; i++)printf("%c", input1[i]);
+		putchar('\n');
+
+
+		for (int i = 0; i < size_array[iter]; i += 4) {
+			row = input1[i] - '0';
+			column = input1[i + 2] - '0';
+			printf("%d%d\n", row, column);
+			player1_board.board_array[row][column] = character[iter];
+
+
+
+		}
+		//to check print it
+
+
+		//}
+		//char input2[MAX];
+		//printf("Please enter the 4 cells (row then column, each cell, separated by spaces in one line) to place the Battleship across:\n");
+		//gets(input2);	
+		//while (compare_input_board(input2, player1_board,size_for_battleship)) {
+		//	printf("One of the cells you have entered is already occupied, please try inputting a different combination of row and column again. Or, you haven't entered spaces correctly!\nPlease enter the 4 cells (row then column, each cell, separated by spaces in one line) to place the Battleship across:\n");
+		//	gets(input2);
+		//}
+		//printf("size: %d\n", size_for_battleship);
+		//for (int i = 0; i < size_for_battleship; i++)printf("%c", input2[i]);
+		//putchar('\n');
+
+		//
+
+		////to check print it
+		//display_board(player1_board);
+		//for (int i = 0; i < size_for_battleship; i += 4) {
+		//	row = input2[i] - '0';
+		//	column = input2[i + 2] - '0';
+		//	printf("%d%d\n", row, column);
+		//	player1_board.board_array[row][column] = 'b';
+
+
+
+		//}
+
+
+
 
 
 
 	}
-	//to check print it
-	
-	display_board(player1_board);
-	char input2[MAX];
-	printf("Please enter the 4 cells (row then column, each cell, separated by spaces in one line) to place the Battleship across:\n");
-	gets(input2);	
-	while (compare_input_board(input2, player1_board,size_for_battleship)) {
-		printf("One of the cells you have entered is already occupied, please try inputting a different combination of row and column again. Or, you haven't entered spaces correctly!\nPlease enter the 4 cells (row then column, each cell, separated by spaces in one line) to place the Battleship across:\n");
-		gets(input2);
-	}
-	printf("size: %d\n", size_for_battleship);
-	for (int i = 0; i < size_for_battleship; i++)printf("%c", input2[i]);
-	putchar('\n');
-
-	
-
-	//to check print it
-	display_board(player1_board);
-	for (int i = 0; i < size_for_battleship; i += 4) {
-		row = input2[i] - '0';
-		column = input2[i + 2] - '0';
-		printf("%d%d\n", row, column);
-		player1_board.board_array[row][column] = 'b';
 
 
-
-	}
-
-
-
-
-
-
-
-
-	
 	//check if it has changed
-	display_board(player1_board);
+	display_board(player1_board, boards.two);
 
 
 }
-int randomly_place_ships_on_board(void) {
+Dir gen_direction(void)
+{
+	return ((Dir)(rand() % 2));
+}
+//we could possibly tweak the code below to return an int or even a struct of ints, he is passing it as a pointer because of the multiplicity, so in our call to function we pass in the addresses
+// for two ints, that we will later use in our 2d board array we are using dereferencing to change the value of our original int numb that is inside main or other funciton.
+void gen_start_pt(Dir direction, int ship_length, int* start_row_ptr,
+	int* start_col_ptr)
+{
+
+	if (direction == HORIZ)
+	{
+		*start_row_ptr = rand() % MAX_ROWS;
+		*start_col_ptr = rand() % (MAX_COLS - ship_length + 1);
+	}
+	else
+	{
+		*start_col_ptr = rand() % MAX_COLS;
+		*start_row_ptr = rand() % (MAX_ROWS - ship_length + 1);
+
+	}
+}
+int randomly_place_ships_on_board(Game boards) {
+	int row_start_position, col_start_position;
+	int is_occupied = 0;
+	int is_outta_bounds = 0;
+	Board player1 = boards.one;
+	Board player2 = boards.two;
+	for (int i = 0; i < sizeof(size_array) / 4; i++) {
+		Dir direction = gen_direction();
+
+
+
+		do {
+			is_occupied = 0;
+			is_outta_bounds = 0;
+			gen_start_pt(direction, size_array[i], &row_start_position, &col_start_position);
+			printf("Random positions for row and column: %d, %d\n", row_start_position, col_start_position);
+			for (int temp = 0; temp < size_array[i] / 4; temp++) {
+				if (direction == HORIZ) {
+					if (col_start_position + temp > 9)is_outta_bounds = 1;
+					if (player1.board_array[row_start_position][col_start_position + temp] != '-') {
+						is_occupied = 1;
+						break;
+					}
+				}
+
+				else {
+					if (row_start_position + temp > 9)is_outta_bounds = 1;
+					if (player1.board_array[row_start_position + temp][col_start_position] != '-') {
+						is_occupied = 1;
+						break;
+					}
+				}
+			}
+		} while (is_occupied||is_outta_bounds);
+
+		for (int j = 0; j < size_array[i] / 4; j++) {
+			if (direction == HORIZ) {
+
+				player1.board_array[row_start_position][col_start_position + j] = character[i];
+
+
+			}
+
+			else {
+				player1.board_array[row_start_position + j][col_start_position] = character[i];
+			}
+		}
+
+
+
+
+	}
+	display_board(player1, player2);
+
+
 
 }
 int check_shot() {
@@ -203,7 +345,7 @@ int is_winner() {
 
 
 void update_board() {}
-void display_board(Board player1_board) {
+void display_board(Board player1_board, Board player2_board) {
 	printf("Player 1's board:\n");
 	printf("%3d%2d%2d%2d%2d%2d%2d%2d%2d%2d\n",
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
@@ -212,7 +354,19 @@ void display_board(Board player1_board) {
 		for (int col = 0; col < MAX_COLS; col++)
 		{
 			printf("%c ", player1_board.board_array[row][col]);
-		}putchar('\n');
+		}
+		putchar('\n');
+	}
+	printf("Player 2's board:\n");
+	printf("%3d%2d%2d%2d%2d%2d%2d%2d%2d%2d\n",
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+	for (int row = 0; row < MAX_ROWS; row++) {
+		printf("%-2d", row);
+		for (int col = 0; col < MAX_COLS; col++)
+		{
+			printf("%c ", player2_board.board_array[row][col]);
+		}
+		putchar('\n');
 	}
 }
 void output_current_move() {
@@ -255,22 +409,3 @@ void output_stats() {
 //
 //}
 //
-//Dir gen_direction(void)
-//{
-//    return ((Dir)(rand() % 2));
-//}
-//void gen_start_pt(Dir direction, int ship_length, int* start_row_ptr,
-//    int* start_col_ptr)
-//{
-//    if (direction == HORIZ)
-//    {
-//        *start_row_ptr = rand() % MAX_ROWS;
-//        *start_col_ptr = rand() % (MAX_COLS - ship_length + 1);
-//    }
-//    else
-//    {
-//        *start_col_ptr = rand() % MAX_COLS;
-//        *start_row_ptr = rand() % (MAX_ROWS - ship_length + 1);
-//
-//    }
-//}
