@@ -22,6 +22,7 @@ typedef enum dir
 
 typedef struct board {
 	char board_array[MAX_ROWS][MAX_COLS];
+	int identifier;
 	
 }Board;
 typedef struct game {
@@ -49,12 +50,12 @@ static char character[5] = { 'c','b','r','s','d' };
 int welcome_screen();
 Game print_game_board();
 int select_who_starts_first();
-int manually_place_ships_on_board(Game boards);
-int randomly_place_ships_on_board(Game boards);
+int manually_place_ships_on_board(Board player1);
+int randomly_place_ships_on_board(Board players);
 int check_shot();
 int is_winner();
 void update_board();
-void display_board(Board player_board, Board player_board2);
+void display_board(Board player_board);
 void output_current_move();
 void check_if_sunk_ship();
 void output_stats();

@@ -55,6 +55,8 @@ int welcome_screen() {
 }
 Game initialize_game_board(void) {
 	Board player1_board, player2_board;
+	player1_board.identifier = 1;
+	player2_board.identifier = 2;
 	int row_index = 0, col_index = 0;
 	for (; row_index < MAX_ROWS; ++row_index) // controls the row that we're visiting
 	{
@@ -73,26 +75,8 @@ Game print_game_board() {
 	Game two_boards = initialize_game_board();
 	Board player1 = two_boards.one;
 	Board player2 = two_boards.two;
-	printf("Player 1's board:\n");
-	printf("%3d%2d%2d%2d%2d%2d%2d%2d%2d%2d\n",
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-	for (int row_index = 0; row_index < MAX_ROWS; row_index++) {
-		printf("%-2d", row_index);
-		for (int column_index = 0; column_index < MAX_COLS; column_index++) {
-			printf("% -2c", player1.board_array[row_index][column_index]);
-		}
-		putchar('\n');
-	}
-	printf("Player 2's board:\n");
-	printf("%3d%2d%2d%2d%2d%2d%2d%2d%2d%2d\n",
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-	for (int row_index = 0; row_index < MAX_ROWS; row_index++) {
-		printf("%-2d", row_index);
-		for (int column_index = 0; column_index < MAX_COLS; column_index++) {
-			printf("% -2c", player2.board_array[row_index][column_index]);
-		}
-		putchar('\n');
-	}
+	display_board(player1);
+	display_board(player2);
 	Game players = { player1,player2 };
 	return players;
 
@@ -185,11 +169,9 @@ int compare_input_board(char input[], Board player1_board, int comparer) {
 	for (int counter = 0; row_storage[counter + 1] != 10; counter++)printf("column;counter:%d,counter+1:%d,difference:%d\n", column_storage[counter], column_storage[counter + 1], column_storage[counter + 1] - column_storage[counter]);
 	return status;
 }
-int manually_place_ships_on_board(Game boards) {
+int manually_place_ships_on_board(Board player1_board) {
 
 	char input1[MAX];
-
-	Board player1_board = boards.one;
 
 	int row, column;
 	getchar();
@@ -253,7 +235,7 @@ int manually_place_ships_on_board(Game boards) {
 
 
 	//check if it has changed
-	display_board(player1_board, boards.two);
+	display_board(player1_board);
 
 
 }
@@ -279,12 +261,10 @@ void gen_start_pt(Dir direction, int ship_length, int* start_row_ptr,
 
 	}
 }
-int randomly_place_ships_on_board(Game boards) {
+int randomly_place_ships_on_board(Board player) {
 	int row_start_position, col_start_position;
 	int is_occupied = 0;
 	int is_outta_bounds = 0;
-	Board player1 = boards.one;
-	Board player2 = boards.two;
 	for (int i = 0; i < sizeof(size_array) / 4; i++) {
 		Dir direction = gen_direction();
 
@@ -298,7 +278,7 @@ int randomly_place_ships_on_board(Game boards) {
 			for (int temp = 0; temp < size_array[i] / 4; temp++) {
 				if (direction == HORIZ) {
 					if (col_start_position + temp > 9)is_outta_bounds = 1;
-					if (player1.board_array[row_start_position][col_start_position + temp] != '-') {
+					if (player.board_array[row_start_position][col_start_position + temp] != '-') {
 						is_occupied = 1;
 						break;
 					}
@@ -306,7 +286,7 @@ int randomly_place_ships_on_board(Game boards) {
 
 				else {
 					if (row_start_position + temp > 9)is_outta_bounds = 1;
-					if (player1.board_array[row_start_position + temp][col_start_position] != '-') {
+					if (player.board_array[row_start_position + temp][col_start_position] != '-') {
 						is_occupied = 1;
 						break;
 					}
@@ -317,13 +297,13 @@ int randomly_place_ships_on_board(Game boards) {
 		for (int j = 0; j < size_array[i] / 4; j++) {
 			if (direction == HORIZ) {
 
-				player1.board_array[row_start_position][col_start_position + j] = character[i];
+				player.board_array[row_start_position][col_start_position + j] = character[i];
 
 
 			}
 
 			else {
-				player1.board_array[row_start_position + j][col_start_position] = character[i];
+				player.board_array[row_start_position + j][col_start_position] = character[i];
 			}
 		}
 
@@ -331,7 +311,7 @@ int randomly_place_ships_on_board(Game boards) {
 
 
 	}
-	display_board(player1, player2);
+	display_board(player);
 
 
 
@@ -345,26 +325,15 @@ int is_winner() {
 
 
 void update_board() {}
-void display_board(Board player1_board, Board player2_board) {
-	printf("Player 1's board:\n");
+void display_board(Board player_board) {
+	printf("Player %d's board:\n",player_board.identifier);
 	printf("%3d%2d%2d%2d%2d%2d%2d%2d%2d%2d\n",
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 	for (int row = 0; row < MAX_ROWS; row++) {
 		printf("%-2d", row);
 		for (int col = 0; col < MAX_COLS; col++)
 		{
-			printf("%c ", player1_board.board_array[row][col]);
-		}
-		putchar('\n');
-	}
-	printf("Player 2's board:\n");
-	printf("%3d%2d%2d%2d%2d%2d%2d%2d%2d%2d\n",
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-	for (int row = 0; row < MAX_ROWS; row++) {
-		printf("%-2d", row);
-		for (int col = 0; col < MAX_COLS; col++)
-		{
-			printf("%c ", player2_board.board_array[row][col]);
+			printf("%c ", player_board.board_array[row][col]);
 		}
 		putchar('\n');
 	}

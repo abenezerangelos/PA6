@@ -19,11 +19,14 @@ int main(void) {
 	random_choice = welcome_screen();
 	Game boards=print_game_board();
 	srand((unsigned int)time(NULL));
+	Board player1 = boards.one;
+	Board player2 = boards.two;
 	if (random_choice == 1) {
 
-		manually_place_ships_on_board(boards);
+		manually_place_ships_on_board(player1);
 	}
-	else randomly_place_ships_on_board(boards);
+	else randomly_place_ships_on_board(player1);
+	randomly_place_ships_on_board(player2);
 
 
 
