@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdbool.h>
 #define MAX_ROWS 10
@@ -23,6 +24,8 @@ typedef enum dir
 typedef struct board {
 	char board_array[MAX_ROWS][MAX_COLS];
 	int identifier;
+	int ship_position_memory[50];
+	int user_input_memory[201];
 	
 }Board;
 typedef struct game {
@@ -50,12 +53,12 @@ static char character[5] = { 'c','b','r','s','d' };
 int welcome_screen();
 Game print_game_board();
 int select_who_starts_first();
-int manually_place_ships_on_board(Board player1);
-int randomly_place_ships_on_board(Board players);
-int check_shot();
+Board manually_place_ships_on_board(Board player1);
+Board randomly_place_ships_on_board(Board players);
+Board check_shot(Board player);
 int is_winner();
 void update_board();
 void display_board(Board player_board);
 void output_current_move();
-void check_if_sunk_ship();
+void check_if_sunk_ship(Board player);
 void output_stats();

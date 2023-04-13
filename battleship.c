@@ -156,8 +156,8 @@ int compare_input_board(char input[], Board player1_board, int comparer) {
 		else if ((row_storage[counter + 1] == row_storage[counter]) && (column_storage[counter + 1] - column_storage[counter]) != 1) {
 
 			printf("2) Redo since there might be a diagonal involved or values that are entered are not horizontal or vertical.\n");
-			printf("First:%d & Second:%d__________Truth:%d\n", row_storage[counter + 1], row_storage[counter], row_storage[counter + 1] == row_storage[counter]);
-			printf("First:%d & Second:%d__________Truth:%d\n", column_storage[counter + 1], column_storage[counter], (column_storage[counter + 1] - column_storage[counter]) != 1);
+			/*printf("First:%d & Second:%d__________Truth:%d\n", row_storage[counter + 1], row_storage[counter], row_storage[counter + 1] == row_storage[counter]);
+			printf("First:%d & Second:%d__________Truth:%d\n", column_storage[counter + 1], column_storage[counter], (column_storage[counter + 1] - column_storage[counter]) != 1);*/
 			status = 1;
 			break;
 		}
@@ -169,10 +169,10 @@ int compare_input_board(char input[], Board player1_board, int comparer) {
 	for (int counter = 0; row_storage[counter + 1] != 10; counter++)printf("column;counter:%d,counter+1:%d,difference:%d\n", column_storage[counter], column_storage[counter + 1], column_storage[counter + 1] - column_storage[counter]);
 	return status;
 }
-int manually_place_ships_on_board(Board player1_board) {
+Board manually_place_ships_on_board(Board player1_board) {
 
 	char input1[MAX];
-
+	int adder=0;
 	int row, column;
 	getchar();
 	for (int iter = 0; iter < sizeof(size_array) / 4; iter++) {
@@ -193,10 +193,14 @@ int manually_place_ships_on_board(Board player1_board) {
 			column = input1[i + 2] - '0';
 			printf("%d%d\n", row, column);
 			player1_board.board_array[row][column] = character[iter];
-
+			player1_board.ship_position_memory[adder] = row;
+			player1_board.ship_position_memory[++adder] = column;
+			adder++;
 
 
 		}
+		player1_board.ship_position_memory[adder] = 10;
+		adder++;
 		//to check print it
 
 
@@ -232,6 +236,7 @@ int manually_place_ships_on_board(Board player1_board) {
 
 
 	}
+	player1_board.ship_position_memory[adder] = 11;
 
 
 	//check if it has changed
@@ -261,8 +266,9 @@ void gen_start_pt(Dir direction, int ship_length, int* start_row_ptr,
 
 	}
 }
-int randomly_place_ships_on_board(Board player) {
+Board randomly_place_ships_on_board(Board player) {
 	int row_start_position, col_start_position;
+	int adder = 0;
 	int is_occupied = 0;
 	int is_outta_bounds = 0;
 	for (int i = 0; i < sizeof(size_array) / 4; i++) {
@@ -298,25 +304,72 @@ int randomly_place_ships_on_board(Board player) {
 			if (direction == HORIZ) {
 
 				player.board_array[row_start_position][col_start_position + j] = character[i];
-
-
+				player.ship_position_memory[adder] = row_start_position;
+				player.ship_position_memory[++adder] = col_start_position+j;
+				adder++;
 			}
 
 			else {
 				player.board_array[row_start_position + j][col_start_position] = character[i];
+				player.ship_position_memory[adder] = row_start_position+j;
+				player.ship_position_memory[++adder] = col_start_position;
+				adder++;
 			}
 		}
+		player.ship_position_memory[adder] = 10;
+		adder++;
 
 
 
 
 	}
+	player.ship_position_memory[adder] = 11;
 	display_board(player);
-
+	return player;
 
 
 }
-int check_shot() {
+Board check_shot(Board player) {
+	char input[MAX];
+	int row, col;
+	
+	
+	
+	int was_occupied = 0;
+	if (player.identifier == 2) {
+		printf("Player1 please enter the row and column of the cell you want to hit separated by a space. (Format: row,space,column)\n");
+		fgets(input,MAX,stdin);
+		printf("This:'%s' ", input);
+		
+		while (input[1] != ' '|| !isdigit(input[0])||!isdigit(input[2])) {
+			printf("Please reenter the row and column of the target cell, you want to enter, the one you entered was not acceptable because you did not follow instructions.\n");
+			fgets(input,MAX,stdin);
+		}
+		row = input[0] - '0';
+		col = input[2] - '0';
+		//mechanism for making user_input_memory work
+		
+		system("cls||clear");
+	}
+	else {
+		row = rand() % 10;
+		col = rand() % 10;
+		printf("Player(Computer) selects: %d %d", row, col);
+	}
+	printf("First:%d,Second:%d,Third:%d", row, input[1], col);
+	for (int i = 0; i < sizeof(character); i++) {
+		if (player.board_array[row][col] == character[i])was_occupied = 1;
+	}
+	if (was_occupied) {
+		player.board_array[row][col] = '*';
+		printf("%d,%d is a hit!\n", row, col);
+	}
+	else {
+		player.board_array[row][col] = 'm';
+		printf("%d,%d is a miss\n", row, col);
+	}
+	return player;
+
 
 }
 int is_winner() {
@@ -340,8 +393,25 @@ void display_board(Board player_board) {
 }
 void output_current_move() {
 }
-void check_if_sunk_ship() {
+void check_if_sunk_ship(Board player) {
+	int is_sunk = 1;
+	int j = 0;
+	for (int i = 0; i<5; i++) {
+		is_sunk = 1;
+		
+		for (; player.ship_position_memory[j] != 10; j+=2) {
+			if (player.board_array[player.ship_position_memory[j]][player.ship_position_memory[j + 1]] != '*')is_sunk = 0;
+			//printf("Inside the function check_if_sunk: Row:%d, Column:%d & value:%c and j index_val: %d\n", player.ship_position_memory[j], player.ship_position_memory[j + 1], player.board_array[player.ship_position_memory[j]][player.ship_position_memory[j + 1]],j);
+			
 
+		}
+		j++;
+		/*printf("Truth values:%d\n",is_sunk );*/
+		if (is_sunk&&player.identifier==1)printf("%s is sunk! Ship lost on player1's board\n", strings[i]);
+		if (is_sunk&&player.identifier==2)printf("%s is sunk! Ship lost on player2's board\n", strings[i]);
+
+	}
+	
 }
 void output_stats() {
 
